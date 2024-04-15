@@ -1,9 +1,20 @@
 import React from 'react'
 import './Pagination.css'
-const range = (start, end) => {
+export const range = (start: number, end: number): number[] => {
+  if (typeof start !== 'number' || typeof end !== 'number') {
+    throw new Error('Both start and end must be numbers')
+  }
   return [...Array(end).keys()].map(el => el + start)
 }
 
+/**
+ * Renders a pagination component with buttons for navigating through pages.
+ *
+ * @param {number} currentPage - The current page number.
+ * @param {number} total - The total number of items.
+ * @param {number} limit - The maximum number of items per page.
+ * @param {(page: number) => void} onPageChangeProp - Callback function for page change.
+ */
 const Pagination: React.FC<{
   currentPage: number
   total: number
