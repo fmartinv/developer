@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import Pagination from './Pagination/Pagination'
 import './App.css'
 
 function App() {
@@ -7,6 +8,16 @@ function App() {
   const [totalPAges, setTotalPages] = useState(0)
   const PRODUCT_URL = 'https://dummyjson.com/products'
   let limit = 10
+
+  const cleanData = data => {
+    return data.map(product => {
+      return {
+        id: product.id,
+        title: product.title,
+        images: product.images
+      }
+    })
+  }
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -23,8 +34,10 @@ function App() {
       const data = await response.json()
 
       if (data) {
-        setData(data.products)
-        setTotalPages(data.total / 10)
+        const cleanedData = cleanData(data.products)
+
+        setData(cleanedData)
+        setTotalPages(data.total)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -35,43 +48,29 @@ function App() {
     fetchProducts()
   }, [currentPage, fetchProducts])
 
-  const selectedPage = selectedPage => {
-    if (
-      selectedPage >= 1 &&
-      selectedPage <= totalPAges &&
-      selectedPage !== currentPage
-    ) {
-      setCurrentPage(selectedPage)
-    }
-  }
-
   return (
     <>
       <div className='products-container'>
         {data &&
-          data.map(product => <div key={product.id}>{product.title}</div>)}
+          data.map(product => (
+            <div className='products-container__item' key={product.id}>
+              <img
+                className='products-container__img'
+                src={product.images[0]}
+                alt={product.title}
+              />
+              {product.title}
+            </div>
+          ))}
       </div>
-      {data && (
-        <div className='pagination'>
-          <button onClick={() => selectedPage(currentPage - 1)}>◀ </button>
-          {[...Array(totalPAges)].map((_, i) => {
-            return (
-              <span
-                key={i}
-                onClick={() => selectedPage(i + 1)}
-                className={
-                  currentPage === i + 1
-                    ? 'pagination__item pagination__item--active'
-                    : 'pagination__item'
-                }
-              >
-                {i + 1}
-              </span>
-            )
-          })}
 
-          <button onClick={() => selectedPage(currentPage + 1)}>▶ </button>
-        </div>
+      {data && (
+        <Pagination
+          currentPage={currentPage}
+          total={totalPAges}
+          onPageChangeProp={page => setCurrentPage(page)}
+          limit={limit}
+        />
       )}
     </>
   )
