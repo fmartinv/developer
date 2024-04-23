@@ -17,7 +17,6 @@ const Example = () => {
       console.log(error)
     }
   }
-  console.log(data)
 
   useEffect(() => {
     fetchData()
